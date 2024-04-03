@@ -3,14 +3,14 @@ frontend:
   phases:
     preBuild:
       commands:
-        - yarn install
+        - nmp install
     build:
       commands:
         - echo "BUILD_ENV=$BUILD_ENV" >> .env.custom
         - node -e 'console.log(`node heap limit = ${require("v8").getHeapStatistics().heap_size_limit / (1024 * 1024)} Mb`)'
         - echo "No build step required"
   artifacts:
-    baseDirectory: /path/to/your/static/assets # Adjust this to where your static files are, if serving any.
+    baseDirectory: public
     files:
       - '**/*'
   cache:
