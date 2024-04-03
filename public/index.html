@@ -83,29 +83,110 @@
             outline: 2px dashed var(--dark-text);
             outline-offset: 4px;
         }
+        /* Feedback styles */
+        .message {
+            color: #ff0000;
+            margin-top: 10px;
+        }
+        .success {
+            color: #008000;
+            margin-top: 10px;
+        }
+        /* Progress Indicator */
+        .progress {
+            margin-top: 20px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <button class="toggle-mode">Switch to Light Mode</button>
         <h2>Framerate Converter</h2>
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <input type="file" name="video" required>
-            <select name="fps">
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
+            <input id="videoInput" type="file" name="video" accept="video/*" required>
+            <select id="fpsSelect" name="fps">
                 <option value="8">8 FPS</option>
                 <option value="16">16 FPS</option>
             </select>
-            <button type="submit">Convert!</button>
+            <button id="convertButton" type="submit">Convert!</button>
+            <div id="feedback" class="message"></div>
+            <div id="progress" class="progress">Conversion in progress...</div>
+            <div id="outputMessage"></div>
         </form>
     </div>
     <script>
         const toggle = document.querySelector('.toggle-mode');
+        const form = document.getElementById('uploadForm');
+        const videoInput = document.getElementById('videoInput');
+        const convertButton = document.getElementById('convertButton');
+        const feedback = document.getElementById('feedback');
+        const progress = document.getElementById('progress');
+        const outputMessage = document.getElementById('outputMessage');
+        
         toggle.addEventListener('click', () => {
             document.body.classList.toggle('light-mode');
             const isLightMode = document.body.classList.contains('light-mode');
             toggle.innerText = isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode';
         });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            const file = videoInput.files[0];
+            if (!file) {
+                feedback.textContent = 'Please select a file.';
+                feedback.className = 'message';
+                return;
+            }
+            if (!isValidFileType(file)) {
+                feedback.textContent = 'Invalid file type. Please select a valid video file.';
+                feedback.className = 'message';
+                return;
+            }
+            formData.append('video', file);
+            formData.append('fps', document.getElementById('fpsSelect').value);
+
+            // Display progress indicator
+            progress.style.display = 'block';
+            
+            try {
+            const response = await fetch(form.action, {
+                method: form.method,
+                body: formData
+            });
+            if (response.ok) {
+                const fps = document.getElementById('fpsSelect').value;
+                const originalFileName = file.name.replace(/\.[^/.]+$/, ""); // Extracting original file name without extension
+                outputMessage.textContent = `Video converted to ${fps} FPS successfully!`;
+                outputMessage.className = 'success';
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `${fps}FPS_${originalFileName}.mp4`; // Constructing the download filename
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } else {
+                feedback.textContent = 'Error during conversion';
+                feedback.className = 'message';
+            }
+        } catch (error) {
+            feedback.textContent = 'Error: ' + error.message;
+            feedback.className = 'message';
+        } finally {
+            // Hide progress indicator
+            progress.style.display = 'none';
+        }
+
+
+        });
+
+        function isValidFileType(file) {
+            return file.type.startsWith('video/');
+        }
     </script>
-    
 </body>
 </html>
