@@ -1,17 +1,111 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Video</title>
+    <style>
+        :root {
+            --dark-bg: #333;
+            --dark-text: #fff;
+            --dark-border: #777;
+            --light-bg: #f0f0f0;
+            --light-text: #333;
+            --light-border: #ccc;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            transition: background-color 0.5s, color 0.5s;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h2 {
+            font-weight: normal;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="file"], select {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 20px;
+            border: 1px solid var(--dark-border);
+            background-color: #444;
+            color: #ddd;
+        }
+        button, .toggle-mode {
+            cursor: pointer;
+            padding: 10px 20px;
+            background-color: transparent;
+            color: var(--dark-text);
+            border: 1px solid var(--dark-text);
+            border-radius: 20px;
+            transition: all 0.3s;
+            outline: none;
+            font-size: 16px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        button:hover, .toggle-mode:hover {
+            background-color: #555;
+        }
+        .toggle-mode {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .light-mode {
+            --dark-bg: #f0f0f0;
+            --dark-text: #333;
+            --dark-border: #ccc;
+        }
+        .light-mode input[type="file"], .light-mode select {
+            border: 1px solid var(--light-border);
+            background-color: var(--light-bg);
+            color: var(--light-text);
+        }
+        .light-mode button, .light-mode .toggle-mode {
+            color: var(--light-text);
+            border-color: var(--light-border);
+        }
+        /* Accessibility enhancements */
+        button:focus, .toggle-mode:focus, input[type="file"]:focus, select:focus {
+            outline: 2px dashed var(--dark-text);
+            outline-offset: 4px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Video Upload</h2>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="video" required>
-        <select name="fps">
-            <option value="8">8 FPS</option>
-            <option value="16">16 FPS</option>
-        </select>
-        <button type="submit">Upload Video</button>
-    </form>
+    <div class="container">
+        <button class="toggle-mode">Switch to Light Mode</button>
+        <h2>Framerate Converter</h2>
+        <form action="/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="video" required>
+            <select name="fps">
+                <option value="8">8 FPS</option>
+                <option value="16">16 FPS</option>
+            </select>
+            <button type="submit">Convert!</button>
+        </form>
+    </div>
+    <script>
+        const toggle = document.querySelector('.toggle-mode');
+        toggle.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLightMode = document.body.classList.contains('light-mode');
+            toggle.innerText = isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode';
+        });
+    </script>
+    
 </body>
 </html>
