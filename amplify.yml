@@ -8,10 +8,9 @@ frontend:
       commands:
         - echo "BUILD_ENV=$BUILD_ENV" >> .env.custom
         - node -e 'console.log(`node heap limit = ${require("v8").getHeapStatistics().heap_size_limit / (1024 * 1024)} Mb`)'
-        - NODE_ENV=production yarn build:release
+        - echo "No build step required"
   artifacts:
-    # IMPORTANT - Please verify your build output directory
-    baseDirectory: /client/www/next-build
+    baseDirectory: /path/to/your/static/assets # Adjust this to where your static files are, if serving any.
     files:
       - '**/*'
   cache:
