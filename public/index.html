@@ -102,13 +102,16 @@
 <body>
     <div class="container">
         <button class="toggle-mode">Switch to Light Mode</button>
-        <h2>Framerate Converter</h2>
+        <h2>Framerate Reducer</h2>
         <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data">
             <input id="videoInput" type="file" name="video" accept="video/*" required>
             <select id="fpsSelect" name="fps">
+                <option value="4">4 FPS (Experimental)</option>
                 <option value="8">8 FPS</option>
                 <option value="16">16 FPS</option>
+                <option value="24">24 FPS (Cinema)</option>
             </select>
+            
             <button id="convertButton" type="submit">Convert!</button>
             <div id="feedback" class="message"></div>
             <div id="progress" class="progress">Conversion in progress...</div>

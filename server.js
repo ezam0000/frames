@@ -29,7 +29,23 @@ app.post('/upload', upload.single('video'), (req, res) => {
     return res.status(400).send('No file uploaded.');
   }
 
-  const fps = req.body.fps === '16' ? 16 : 8; // Default to 8 if not 16
+  // Updated logic to include 24 fps and 4 fps options
+  const fpsInput = req.body.fps;
+  let fps;
+  switch (fpsInput) {
+    case '4':
+      fps = 4;
+      break;
+    case '16':
+      fps = 16;
+      break;
+    case '24':
+      fps = 24;
+      break;
+    default:
+      fps = 8; // Default to 8 if no matching case
+  }
+
   const outputFilename = `processed-${Date.now()}.mp4`;
   const outputPath = path.join('processed', outputFilename);
 
