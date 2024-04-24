@@ -7,14 +7,20 @@ const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Ensure that the temporary directories exist on server startup
+const tempUploadsDir = '/tmp/uploads';
+const tempProcessedDir = '/tmp/processed';
+if (!fs.existsSync(tempUploadsDir)) {
+    fs.mkdirSync(tempUploadsDir, { recursive: true });
+}
+if (!fs.existsSync(tempProcessedDir)) {
+    fs.mkdirSync(tempProcessedDir, { recursive: true });
+}
+
 // Configure storage for multer to use the /tmp directory for uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const tempDir = '/tmp/uploads';
-        if (!fs.existsSync(tempDir)){
-            fs.mkdirSync(tempDir, { recursive: true });
-        }
-        cb(null, tempDir);
+        cb(null, tempUploadsDir);
     },
     filename: function (req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
@@ -50,13 +56,8 @@ app.post('/upload', upload.single('video'), (req, res) => {
     }
 
     const outputFilename = `processed-${Date.now()}.mp4`;
-    const tempProcessedDir = '/tmp/processed';
-    if (!fs.existsSync(tempProcessedDir)){
-        fs.mkdirSync(tempProcessedDir, { recursive: true });
-    }
     const outputPath = path.join(tempProcessedDir, outputFilename);
 
-    // Use ffmpeg to process the video
     ffmpeg(file.path)
         .fps(fps)
         .on('end', function() {
