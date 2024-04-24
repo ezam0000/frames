@@ -1,18 +1,20 @@
 {
   "name": "framez",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Node.js project to process and manage video uploads",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:release": "echo \"No build step required for release\"",
     "start": "node server.js"
   },
-  "bin": {
-    "framez": "./server.js"
-  },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "video",
+    "processing",
+    "upload",
+    "express",
+    "ffmpeg"
+  ],
+  "author": "Your Name or Organization",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
