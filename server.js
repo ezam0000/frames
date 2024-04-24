@@ -1,15 +1,23 @@
 const express = require('express');
+const path = require('path');
 const multer = require('multer');
 const ffmpeg = require('fluent-ffmpeg');
-const path = require('path');
 const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configure storage for multer to use the /tmp directory for uploads
+// Ensure that the temporary directories exist on server startup
 const tempUploadsDir = '/tmp/uploads';
 const tempProcessedDir = '/tmp/processed';
+if (!fs.existsSync(tempUploadsDir)) {
+    fs.mkdirSync(tempUploadsDir, { recursive: true });
+}
+if (!fs.existsSync(tempProcessedDir)) {
+    fs.mkdirSync(tempProcessedDir, { recursive: true });
+}
+
+// Configure storage for multer to use the /tmp directory for uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, tempUploadsDir);
@@ -21,11 +29,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Serve static files (if needed)
-// app.use(express.static('public'));
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Route to handle video uploads and processing
-app.post('/api/upload', upload.single('video'), (req, res) => {
+app.post('/upload', upload.single('video'), (req, res) => {
     const file = req.file;
     if (!file) {
         return res.status(400).send('No file uploaded.');
@@ -70,12 +78,9 @@ app.post('/api/upload', upload.single('video'), (req, res) => {
         .save(outputPath);
 });
 
-// Export the app for Vercel
-module.exports = app;
+// Start the server
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
 
-// Start the server only if not running in Vercel environment
-if (!process.env.NOW_REGION) {
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-}
+module.exports = app; // Export the app for Vercel
