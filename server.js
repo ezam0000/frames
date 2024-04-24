@@ -1,31 +1,23 @@
 const express = require('express');
 const multer = require('multer');
-const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Ensure necessary directories exist
-const uploadDir = 'uploads';
-const processedDir = 'processed';
-
-if (!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-if (!fs.existsSync(processedDir)){
-    fs.mkdirSync(processedDir, { recursive: true });
-}
-
 // Configure storage for multer
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadDir)
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+  destination: function (req, file, cb) {
+    const tempDir = '/tmp/uploads';
+    if (!fs.existsSync(tempDir)){
+      fs.mkdirSync(tempDir, { recursive: true });
     }
+    cb(null, tempDir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
+  }
 });
 
 const upload = multer({ storage: storage });
