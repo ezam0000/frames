@@ -7,17 +7,9 @@ const fs = require('fs');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Ensure that the temporary directories exist on server startup
+// Configure storage for multer to use the /tmp directory for uploads
 const tempUploadsDir = '/tmp/uploads';
 const tempProcessedDir = '/tmp/processed';
-if (!fs.existsSync(tempUploadsDir)) {
-    fs.mkdirSync(tempUploadsDir, { recursive: true });
-}
-if (!fs.existsSync(tempProcessedDir)) {
-    fs.mkdirSync(tempProcessedDir, { recursive: true });
-}
-
-// Configure storage for multer to use the /tmp directory for uploads
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, tempUploadsDir);
@@ -29,11 +21,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Serve static files
-app.use(express.static('public'));
+// Serve static files (if needed)
+// app.use(express.static('public'));
 
 // Route to handle video uploads and processing
-app.post('/upload', upload.single('video'), (req, res) => {
+app.post('/api/upload', upload.single('video'), (req, res) => {
     const file = req.file;
     if (!file) {
         return res.status(400).send('No file uploaded.');
@@ -78,9 +70,12 @@ app.post('/upload', upload.single('video'), (req, res) => {
         .save(outputPath);
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// Export the app for Vercel
+module.exports = app;
 
-module.exports = app; // Export the app for Vercel
+// Start the server only if not running in Vercel environment
+if (!process.env.NOW_REGION) {
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+}
